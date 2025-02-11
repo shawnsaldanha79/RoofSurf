@@ -8,7 +8,6 @@ import Profile from "./pages/Profile";
 import Header from "./components/Header";
 
 export default function App() {
-  console.log("hello");
   return (
     <BrowserRouter>
       <Header/>
