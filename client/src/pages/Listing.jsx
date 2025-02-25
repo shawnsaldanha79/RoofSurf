@@ -14,7 +14,7 @@ import {
   FaParking,
   FaShare,
 } from 'react-icons/fa';
-import Contact from './Contact';
+import Contact from '../components/Contact';
 
 export default function Listing() {
     SwiperCore.use([Navigation]);
@@ -56,7 +56,6 @@ export default function Listing() {
                     {listing.imageUrls.map((url) => (
                         <SwiperSlide key={url}>
                             <div className='h-[550px]' style={{background: `url(${url}) center no-repeat`, backgroundSize: 'cover'}}>
-
                             </div>
                         </SwiperSlide>
                     ))}
