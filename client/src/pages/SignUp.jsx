@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
 import { HiHomeModern } from "react-icons/hi2";
 
-
 export default function SignUp() {
     const [formData, setFormData] = useState({
         username: "",
@@ -25,13 +24,17 @@ export default function SignUp() {
         evt.preventDefault();
         try {
             setLoading(true);
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signup`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData),
-            });
+            const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/auth/signup`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                    credentials: "include",
+                }
+            );
             const data = await res.json();
             if (data.success === false) {
                 setLoading(false);

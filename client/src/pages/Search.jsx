@@ -5,7 +5,7 @@ import { FaSearch, FaFilter, FaTimes } from "react-icons/fa";
 
 export default function Search() {
     const navigate = useNavigate();
-    const location = useLocation(); // Add useLocation hook
+    const location = useLocation(); 
     const [sidebarData, setSidebarData] = useState({
         searchTerm: "",
         type: "all",
@@ -21,7 +21,6 @@ export default function Search() {
     const [showMobileFilters, setShowMobileFilters] = useState(false);
 
     useEffect(() => {
-        // This will run every time the URL search params change
         const urlParams = new URLSearchParams(location.search);
         const searchTermFromUrl = urlParams.get("searchTerm");
         const typeFromUrl = urlParams.get("type");
@@ -31,7 +30,6 @@ export default function Search() {
         const sortFromUrl = urlParams.get("sort");
         const orderFromUrl = urlParams.get("order");
 
-        // Update sidebar data from URL params
         setSidebarData({
             searchTerm: searchTermFromUrl || "",
             type: typeFromUrl || "all",
@@ -42,7 +40,6 @@ export default function Search() {
             order: orderFromUrl || "desc",
         });
 
-        // Fetch listings based on current URL params
         const fetchListings = async () => {
             setLoading(true);
             setShowMore(false);
@@ -59,7 +56,7 @@ export default function Search() {
         };
 
         fetchListings();
-    }, [location.search]); // Depend on location.search instead of just running once
+    }, [location.search]); 
 
     const handleChange = (evt) => {
         if (

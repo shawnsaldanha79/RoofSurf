@@ -9,7 +9,6 @@ import {
 import OAuth from "../components/OAuth";
 import { HiHomeModern } from "react-icons/hi2";
 
-
 export default function SignIn() {
     const [formData, setFormData] = useState({ email: "", password: "" });
     const { loading, error } = useSelector((state) => state.user);
@@ -27,13 +26,17 @@ export default function SignIn() {
         evt.preventDefault();
         try {
             dispatch(signInStart());
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signin`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData),
-            });
+            const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/auth/signin`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                    credentials: "include",
+                }
+            );
             const data = await res.json();
             if (data.success === false) {
                 dispatch(signInFailure(data.message));

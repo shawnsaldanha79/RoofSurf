@@ -1,12 +1,6 @@
 import { useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
-import {
-    getStorage,
-    ref,
-    uploadBytesResumable,
-    getDownloadURL,
-} from "firebase/storage";
-import { app } from "../firebase";
+import { storage } from "../supabase";
 import {
     updateUserStart,
     updateUserSuccess,
@@ -42,27 +36,14 @@ export default function Profile() {
         }
     }, [file]);
 
-    const handleFileUpload = (file) => {
-        const storage = getStorage(app);
-        const fileName = new Date().getTime() + file.name;
-        const storageRef = ref(storage, fileName);
-        const uploadTask = uploadBytesResumable(storageRef, file);
-        uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-                const progress =
-                    (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                setFilePerc(Math.round(progress));
-            },
-            (err) => {
-                setFileUploadError(true);
-            },
-            () => {
-                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) =>
-                    setFormData({ ...formData, avatar: downloadURL })
-                );
-            }
-        );
+    const handleFileUpload = async (file) => {
+        try {
+            setFileUploadError(false);
+            const downloadURL = await storage.uploadImage(file, "avatars");
+            setFormData({ ...formData, avatar: downloadURL });
+        } catch (err) {
+            setFileUploadError(true);
+        }
     };
 
     const handleChange = (evt) => {
@@ -73,13 +54,19 @@ export default function Profile() {
         evt.preventDefault();
         try {
             dispatch(updateUserStart());
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/user/update/${currentUser._id}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData),
-            });
+            const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/user/update/${
+                    currentUser._id
+                }`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                    credentials: "include",
+                }
+            );
             const data = await res.json();
             if (data.success === false) {
                 dispatch(updateUserFailure(data.message));
@@ -101,9 +88,15 @@ export default function Profile() {
             return;
         try {
             dispatch(deleteUserStart());
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/user/delete/${currentUser._id}`, {
-                method: "DELETE",
-            });
+            const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/user/delete/${
+                    currentUser._id
+                }`,
+                {
+                    method: "DELETE",
+                    credentials: "include",
+                }
+            );
             const data = await res.json();
             if (data.success === false) {
                 dispatch(deleteUserFailure(data.message));
@@ -118,7 +111,9 @@ export default function Profile() {
     const handleSignOut = async () => {
         try {
             dispatch(signOutUserStart());
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signout`);
+            const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/auth/signout`
+            );
             const data = await res.json();
             if (data.success === false) {
                 dispatch(signOutUserFailure(data.message));
@@ -133,7 +128,15 @@ export default function Profile() {
     const handleShowListings = async () => {
         try {
             setShowListingsError(false);
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/user/listings/${currentUser._id}`);
+            const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/user/listings/${
+                    currentUser._id
+                }`,
+                {
+                    method: "GET",
+                    credentials: "include",
+                }
+            );
             const data = await res.json();
             if (data.success === false) {
                 setShowListingsError(true);
@@ -149,9 +152,15 @@ export default function Profile() {
         if (!window.confirm("Are you sure you want to delete this listing?"))
             return;
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/api/listing/delete/${listingId}`, {
-                method: "DELETE",
-            });
+            const res = await fetch(
+                `${
+                    import.meta.env.VITE_API_URL
+                }/api/listing/delete/${listingId}`,
+                {
+                    method: "DELETE",
+                    credentials: "include",
+                }
+            );
             const data = await res.json();
             if (data.success === false) {
                 console.log(data.message);
